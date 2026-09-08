@@ -61,7 +61,7 @@ To directly use the provided dataloader, process the Pavia and Chikusei datasets
 
 ### Daxing
 
-The self-collected UAV-based Daxing dataset is provided in this repository under `datasets/Daxing/`.
+The self-collected UAV-based Daxing dataset is provided in this repository.
 
 ### Custom data
 
