@@ -3,7 +3,7 @@
     "experim_name": "Experiments_lk",
     "model": "SCSRNet",
     "N_modules": 1,
-    "train_dataset": "chikusei_dataset",
+    "train_dataset": "pavia_dataset",
     "is_DHP_MS": false,
     "train_batch_size": 2,
     "val_batch_size": 1,
@@ -83,13 +83,11 @@
         },
   
     "dx_dataset": {
-        "data_dir": "datasets/Daxing_256_x4/",
+        "data_dir": "datasets/Daxing/",
         "spectral_bands": 224,
         "msi_bands": 3,
         "LR_size": 64,
         "HR_size": 256,
-        "hsi_wavelength_range": [400, 1000],
-        "msi_wavelength_range": [450, 650],
         "augmentation": false,
         "max_value": 5000,
         "factor": 4,
