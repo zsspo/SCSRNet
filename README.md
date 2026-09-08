@@ -104,6 +104,3 @@ keywords = {Images fusion, Multi-scale, Spatial-spectral features, Large-kernel 
 }
 ```
 
-## Acknowledgements
-
-This repository reuses code from [RepLKNet](https://github.com/DingXiaoH/RepLKNet-pytorch.git) (large-kernel conv iGEMM implementation) and the Hyperspec_Chikusei MATLAB toolbox by Naoto Yokoya. We thank the authors for making their code and data publicly available.
