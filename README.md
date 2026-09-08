@@ -16,7 +16,7 @@ The network is built around three key designs:
 - **Large-Kernel Spatial–Spectral Residual Block (LK-SSRB)** — a Multi-Scale Spatial Perception Module (MSPM) captures spatial context with large receptive fields, while a Spatial-Conditioned Spectral Routing Module (SCSRM) dynamically establishes spectral dependencies guided by spatial priors.
 - **Residual Scaling Connection (RSC)** — improves optimization stability and feature propagation.
 
-Experiments on Pavia Center, Chikusei, MDAS, and a self-collected UAV-based Daxing dataset show that SCSRNet consistently outperforms seven state-of-the-art methods while keeping computational complexity low.
+
 
 <p align="center">
   <img src="assets/arch.jpg" width="90%">
