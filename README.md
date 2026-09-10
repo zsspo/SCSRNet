@@ -40,7 +40,7 @@ pip install einops timm kornia opencv-python scipy numpy tifffile \
     matplotlib pandas wandb tensorboard torchsummary torchstat
 ```
 
-> **Note on GDAL:** GeoTIFF I/O relies on `gdal` (`from osgeo import gdal`). If on windows platform, you need to build GDAL from wheel.
+> **Note on GDAL:** GeoTIFF I/O relies on `gdal` (`from osgeo import gdal`). On windows platform, you need to build GDAL from wheel.
 
 ## Data Preparation
 
