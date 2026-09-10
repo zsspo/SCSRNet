@@ -36,7 +36,7 @@ For an intermediate feature map with spatial size $H \times W$ and $C$ channels,
 | Swin Transformer full layer | $12H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
 | Depthwise convolution | $H W C K^2$ | $O(HW C K^2)$ |
 | Depthwise separable convolution | $H W C K^2 + H W C^2$ | $O(HW C(K^2+C))$ |
-| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv (out=1) | $(K^2+k)H W C$ | $O((K^2+k)H W C)$ |
+| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv (out=1) | $H W C K^2 + H W Ck$ | $O(H W C(K^2+k))$ |
 
 With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
 
