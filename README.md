@@ -45,13 +45,6 @@ With common settings $K=3$ and $M=7$, the comparison becomes:
 | Depthwise convolution $3\times3$ | $9 H W C$ |
 | Depthwise convolution $13\times13$ | $169 H W C$ |
 
-This comparison provides the main motivation for the lightweight design of SCSRNet:
-
-- **Standard convolution** couples spatial and channel mixing, and its cost grows quadratically with the channel number, i.e., $O(HW C^2 K^2)$. When $C$ is large, which is common in hyperspectral and multispectral image fusion, this term becomes a dominant computational bottleneck.
-- **Global self-attention** introduces token-wise interactions with an additional $O((HW)^2 C)$ term. For high-resolution remote sensing images, $N=HW$ is large, making global attention prohibitively expensive.
-- **Swin Transformer** restricts attention to local windows and reduces the attention cost to $O(HW M^2 C)$. However, its full layer still contains projection and MLP costs of $O(HW C^2)$, and the window partitioning, shifting, and masking operations add extra implementation overhead.
-- **Depthwise convolution** performs spatial filtering independently for each channel, requiring only $O(HW C K^2)$. For the same kernel size, it is approximately $C$ times cheaper than standard convolution. More importantly, its cost remains linear in the channel number $C$, allowing large kernels to be used for large receptive fields without the quadratic channel cost.
-
 ## Environment
 
 Tested with **CUDA 11.8 + Python 3.9 + PyTorch 2.0**.
