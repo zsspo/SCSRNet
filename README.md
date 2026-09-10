@@ -24,7 +24,9 @@ The network is built around three key designs:
 
 ## Motivation: Computational Complexity and Depthwise Convolution
 
-For an intermediate feature map with spatial size $H \times W$ and $C$ channels, let $N=HW$ denote the number of tokens, $K \times K$ the convolution kernel size, and $M \times M$ the Swin Transformer window size. Assuming $C_{\text{in}}=C_{\text{out}}=C$, the computational complexity in terms of MACs is summarized as follows. If FLOPs are used instead, the values are approximately $2\times$ the MACs.
+For an intermediate feature map with spatial size $H \times W$ and $C$ channels, let $N=HW$ denote the number of tokens, $K \times K$ the convolution kernel size, and $M \times M$ the Swin Transformer window size. Assuming $C_{\text{in}}=C_{\text{out}}=C$, the computational complexity in terms of MACs is summarized in Table 1. If FLOPs are used instead, the values are approximately $2\times$ the MACs.
+
+**Table 1. Computational complexity of different operations.**
 
 | Operation | MACs | Complexity |
 |---|---:|---:|
@@ -34,9 +36,11 @@ For an intermediate feature map with spatial size $H \times W$ and $C$ channels,
 | Swin Transformer full layer | $12H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
 | Depthwise convolution | $H W C K^2$ | $O(HW C K^2)$ |
 | Depthwise separable convolution | $H W C K^2 + H W C^2$ | $O(HW C(K^2+C))$ |
-| **Depth-wise $K\times K$ + channel-wise $k\times 1$ conv (out=1)** | **$(K^2+k) H W C$** |
+| Depth-wise $K\times K$ + channel-wise $k\times 1$ conv (out=1) | $(K^2+k)H W C$ | $O((K^2+k)H W C)$ |
 
-With common settings $K=3$ and $M=7$, the comparison becomes:
+With common settings $K=3$ and $M=7$, the comparison becomes Table 2.
+
+**Table 2. MACs under common settings ($K=3$, $M=7$).**
 
 | Operation | MACs |
 |---|---:|
@@ -45,7 +49,17 @@ With common settings $K=3$ and $M=7$, the comparison becomes:
 | Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
 | Depthwise convolution $3\times3$ | $9 H W C$ |
 | Depthwise convolution $13\times13$ | $169 H W C$ |
-| **Depth-wise $13\times13$ + channel-wise $7\times1$ conv (out=1)** | **$175 H W C$** |
+| Depth-wise $13\times13$ + channel-wise $7\times1$ conv (out=1) | $175 H W C$ |
+
+This comparison provides the main motivation for the lightweight design of SCSRNet:
+
+- **Standard convolution** couples spatial and channel mixing, and its cost grows quadratically with the channel number, i.e., $O(HW C^2 K^2)$. When $C$ is large, which is common in hyperspectral and multispectral image fusion, this term becomes a dominant computational bottleneck.
+- **Global self-attention** introduces token-wise interactions with an additional $O((HW)^2 C)$ term. For high-resolution remote sensing images, $N=HW$ is large, making global attention prohibitively expensive.
+- **Swin Transformer** restricts attention to local windows and reduces the attention cost to $O(HW M^2 C)$. However, its full layer still contains projection and MLP costs of $O(HW C^2)$, and the window partitioning, shifting, and masking operations add extra implementation overhead.
+- **Depthwise convolution** performs spatial filtering independently for each channel, requiring only $O(HW C K^2)$. For the same kernel size, it is approximately $C$ times cheaper than standard convolution. More importantly, its cost remains linear in the channel number $C$, allowing large kernels to be used for large receptive fields without the quadratic channel cost.
+- **Channel-wise $k\times 1$ convolution with one output channel** further aggregates the depthwise responses along the channel dimension. Its cost is only $O(kHWC)$, which also remains linear in $C$. For $K=13$ and $k=7$, the combined large-kernel depthwise branch costs about $175HWC$ MACs, still far cheaper than standard convolution when $C$ is large.
+
+Therefore, under the same $H, W, C$ setting, depthwise convolution offers a favorable efficiency–accuracy trade-off for hyperspectral and multispectral image fusion. This motivates SCSRNet to adopt depthwise large-kernel convolution in the **Multi-Scale Spatial Perception Module (MSPM)** of the **Large-Kernel Spatial–Spectral Residual Block (LK-SSRB)**, so that multi-scale spatial context can be captured efficiently. Similarly, the **Spatial-Conditioned Spectral Routing Module (SCSRM)** avoids dense global spectral attention and instead establishes spectral dependencies guided by spatial priors, while the **Dynamic Fusion Gate (DFG)** adaptively balances HSI and MSI contributions with lightweight spatial-conditioned operations. The **Residual Scaling Connection (RSC)** further improves optimization stability without changing the above complexity order. These designs together make SCSRNet efficient for high-resolution HMIF while maintaining strong spatial–spectral representation ability.
 
 ## Environment
 
