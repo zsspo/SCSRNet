@@ -53,7 +53,7 @@ Datasets should be placed under the `datasets/` directory. Both `.mat` and `.tif
 | Pavia Center | `.mat` | `pavia_dataset` | https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes |
 | Chikusei    | `.mat` | `chikusei_dataset` | https://naotoyokoya.com/Download.html |
 | MDAS        | `.mat` / `.tif` | `mdasn_dataset` | https://mediatum.ub.tum.de/1657312 |
-| Daxing      | `.mat` / `.tif` | `dx_dataset` | [Baidu Netdisk](https://pan.baidu.com/s/1Qj7Ga4QXesRTIJJ2y5gtaQ?pwd=yiyr) |
+| Daxing      | `.mat` / `.tif` | `dx_dataset` | [Baidu Netdisk](https://pan.baidu.com/s/1Qj7Ga4QXesRTIJJ2y5gtaQ?pwd=yiyr) (yiyr)|
 
 ### Pavia & Chikusei
 
