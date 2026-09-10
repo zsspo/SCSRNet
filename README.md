@@ -40,7 +40,7 @@ For an intermediate feature map with spatial size $H \times W$ and $C$ channels,
 
 With common settings $K=3$ and $M=7$, the comparison becomes Table 2.
 
-**Table 2. MACs under common settings ($K=3$, $M=7$).**
+**Table 2. MACs under common settings.**
 
 | Operation | MACs |
 |---|---:|
