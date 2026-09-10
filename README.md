@@ -99,7 +99,7 @@ For an intermediate feature map with spatial size $H \times W$ and $C$ channels,
 | Swin Transformer full layer | $12H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
 | Depthwise convolution | $H W C K^2$ | $O(HW C K^2)$ |
 | Depthwise separable convolution | $H W C K^2 + H W C^2$ | $O(HW C(K^2+C))$ |
-| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv (out=1) | $H W C K^2 + H W Ck$ | $O(H W C(K^2+k))$ |
+| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv | $H W C K^2 + H W Ck$ | $O(H W C(K^2+k))$ |
 
 With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
 
@@ -112,7 +112,7 @@ With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
 | Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
 | Depthwise convolution $3\times3$ | $9 H W C$ |
 | Depthwise convolution $13\times13$ | $169 H W C$ |
-| Depthwise $13\times13$ + our channel-wise $7\times1$ conv (out=1) | $176 H W C$ |
+| Depthwise $13\times13$ + our channel-wise $7\times1$ conv | $176 H W C$ |
 
 This comparison provides the main motivation for the lightweight design of SCSRNet:
 
