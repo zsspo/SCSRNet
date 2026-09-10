@@ -61,9 +61,9 @@ To directly use the provided dataloader, process the Pavia and Chikusei datasets
 
 - http://park.itc.u-tokyo.ac.jp/sal/hyperdata/Hyperspec_Chikusei_MATLAB.zip
 
-### Daxing
+### MDAS & Daxing
 
-The self-collected UAV-based Daxing dataset is provided in this repository.
+The processed MDAS dataset and Daxing dataset is provided in this repository.
 
 ### Custom data
 
