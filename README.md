@@ -43,6 +43,7 @@ With common settings $K=3$ and $M=7$, the comparison becomes:
 | Global self-attention | $4H W C^2 + 2H^2W^2 C$ |
 | Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
 | Depthwise convolution $3\times3$ | $9 H W C$ |
+| Depthwise convolution $13\times13$ | $169 H W C$ |
 
 This comparison provides the main motivation for the lightweight design of SCSRNet:
 
