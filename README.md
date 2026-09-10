@@ -49,7 +49,7 @@ With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
 | Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
 | Depthwise convolution $3\times3$ | $9 H W C$ |
 | Depthwise convolution $13\times13$ | $169 H W C$ |
-| Depthwise $13\times13$ + our channel-wise $7\times1$ conv (out=1) | $175 H W C$ |
+| Depthwise $13\times13$ + our channel-wise $7\times1$ conv (out=1) | $176 H W C$ |
 
 This comparison provides the main motivation for the lightweight design of SCSRNet:
 
@@ -57,7 +57,7 @@ This comparison provides the main motivation for the lightweight design of SCSRN
 - **Global self-attention** introduces token-wise interactions with an additional $O((HW)^2 C)$ term. For high-resolution remote sensing images, $N=HW$ is large, making global attention prohibitively expensive.
 - **Swin Transformer** restricts attention to local windows and reduces the attention cost to $O(HW M^2 C)$. However, its full layer still contains projection and MLP costs of $O(HW C^2)$, and the window partitioning, shifting, and masking operations add extra implementation overhead.
 - **Depthwise convolution** performs spatial filtering independently for each channel, requiring only $O(HW C K^2)$. For the same kernel size, it is approximately $C$ times cheaper than standard convolution. More importantly, its cost remains linear in the channel number $C$, allowing large kernels to be used for large receptive fields without the quadratic channel cost.
-- **Channel-wise $k\times 1$ convolution with one output channel** further aggregates the depthwise responses along the channel dimension. Its cost is only $O(kHWC)$, which also remains linear in $C$. For $K=13$ and $k=7$, the combined large-kernel depthwise branch costs about $175HWC$ MACs, still far cheaper than standard convolution when $C$ is large.
+- **Channel-wise $k\times 1$ convolution with one output channel** further aggregates the depthwise responses along the channel dimension. Its cost is only $O(kHWC)$, which also remains linear in $C$. For $K=13$ and $k=7$, the combined large-kernel depthwise branch costs about $176HWC$ MACs, still far cheaper than standard convolution when $C$ is large.
 
 ## Environment
 
