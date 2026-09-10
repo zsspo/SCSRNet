@@ -279,13 +279,13 @@ class LKSSBlock(nn.Module):
                  dim,
                  kernel_size,
                  drop_path=0.,
-                 layer_scale_init_value=1e-6,
+                 scale_value=1e-6,
                  deploy=False,
                  decom=True,
                  attempt_use_lk_impl=False,
                  with_cp=False,
                  use_sync_bn=False,
-                 ffn_factor=4):
+                 ):
         super().__init__()
         self.with_cp = with_cp
         self.decom = decom
@@ -315,9 +315,9 @@ class LKSSBlock(nn.Module):
             self.norm = get_bn(dim, use_sync_bn=use_sync_bn)
 
         self.spec = SpatialGuidedSpectralRouting(dim)
-        self.gamma = nn.Parameter(layer_scale_init_value * torch.ones(dim),
-                                  requires_grad=True) if (not deploy) and layer_scale_init_value is not None \
-                                                         and layer_scale_init_value > 0 else None
+        self.gamma = nn.Parameter(scale_value * torch.ones(dim),
+                                  requires_grad=True) if (not deploy) and scale_value is not None \
+                                                         and scale_value > 0 else None
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
 
     def residual(self, x):
@@ -365,7 +365,7 @@ class SCSRNet(nn.Module):
                  depths=depths,
                  dims=(64, 64),
                  drop_path_rate=0.,
-                 layer_scale_init_value=1e-6,
+                 scale_value=1e-6,
                  kernel_sizes=None,
                  deploy=False,
                  with_cp=False,
@@ -384,7 +384,7 @@ class SCSRNet(nn.Module):
         self.hr_size =  config[config["train_dataset"]]["HR_size"]
         self.n_select_bands = config[config['train_dataset']]["msi_bands"]
         self.selected_sp_channels = [config[config['train_dataset']]['B'], config[config['train_dataset']]['G'], config[config['train_dataset']]['R']]
-        #layer_scale_init_value = config['scale_f']
+        #scale_value = config['scale_f']
 
         depths = tuple(depths)
         self.num_layers = len(depths)
@@ -408,7 +408,7 @@ class SCSRNet(nn.Module):
         for i in range(self.num_layers):
             block = nn.Sequential(
                 *[LKSSBlock(dim=dims[i], kernel_size=kernel_sizes[i][j], drop_path=dp_rates[cur + j],
-                                   layer_scale_init_value=layer_scale_init_value, deploy=deploy,
+                                   scale_value=scale_value, deploy=deploy,
                                    attempt_use_lk_impl=attempt_use_lk_impl,
                                    with_cp=with_cp, use_sync_bn=use_sync_bn) for j in range(depths[i])])
             self.blocks.append(block)
@@ -440,7 +440,7 @@ class SCSRNet(nn.Module):
         x_msi = self.msi_layer(hr_msi)
         x = self.gate(x_hsi, x_msi)
 
-        # SKSSRB + LKSSRB
+        # SKSSRBs and LKSSRBs
         for stage_idx in range(self.num_layers):
             x = self.blocks[stage_idx](x)
 
