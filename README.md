@@ -22,42 +22,7 @@ The network is built around three key designs:
   <img src="assets/arch.jpg" width="90%">
 </p>
 
-## Analysis: Computational Complexity and Depthwise Convolution
 
-For an intermediate feature map with spatial size $H \times W$ and $C$ channels, let $N=HW$ denote the number of tokens, $K \times K$ the convolution kernel size, and $M \times M$ the Swin Transformer window size. Assuming $C_{\text{in}}=C_{\text{out}}=C$, the computational complexity in terms of MACs is summarized in Table 1.
-
-**Table 1. Computational complexity of different operations.**
-
-| Operation | MACs | Complexity |
-|---|---:|---:|
-| Standard convolution | $H W C^2 K^2$ | $O(HW C^2 K^2)$ |
-| Global self-attention | $4H W C^2 + 2(HW)^2 C$ | $O(HW C^2 + (HW)^2 C)$ |
-| Swin Transformer attention | $4H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
-| Swin Transformer full layer | $12H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
-| Depthwise convolution | $H W C K^2$ | $O(HW C K^2)$ |
-| Depthwise separable convolution | $H W C K^2 + H W C^2$ | $O(HW C(K^2+C))$ |
-| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv (out=1) | $H W C K^2 + H W Ck$ | $O(H W C(K^2+k))$ |
-
-With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
-
-**Table 2. MACs under common settings.**
-
-| Operation | MACs |
-|---|---:|
-| Standard convolution $3\times3$ | $9 H W C^2$ |
-| Global self-attention | $4H W C^2 + 2H^2W^2 C$ |
-| Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
-| Depthwise convolution $3\times3$ | $9 H W C$ |
-| Depthwise convolution $13\times13$ | $169 H W C$ |
-| Depthwise $13\times13$ + our channel-wise $7\times1$ conv (out=1) | $176 H W C$ |
-
-This comparison provides the main motivation for the lightweight design of SCSRNet:
-
-- **Standard convolution** couples spatial and channel mixing, and its cost grows quadratically with the channel number, i.e., $O(HW C^2 K^2)$. When $C$ is large, which is common in hyperspectral and multispectral image fusion, this term becomes a dominant computational bottleneck.
-- **Global self-attention** introduces token-wise interactions with an additional $O((HW)^2 C)$ term. For high-resolution remote sensing images, $N=HW$ is large, making global attention prohibitively expensive.
-- **Swin Transformer** restricts attention to local windows and reduces the attention cost to $O(HW M^2 C)$. However, its full layer still contains projection and MLP costs of $O(HW C^2)$, and the window partitioning, shifting, and masking operations add extra implementation overhead.
-- **Depthwise convolution** performs spatial filtering independently for each channel, requiring only $O(HW C K^2)$. For the same kernel size, it is approximately $C$ times cheaper than standard convolution. More importantly, its cost remains linear in the channel number $C$, allowing large kernels to be used for large receptive fields without the quadratic channel cost.
-- **Channel-wise $k\times 1$ convolution with one output channel** further aggregates the depthwise responses along the channel dimension. Its cost is only $O(kHWC)$, which also remains linear in $C$. For $K=13$ and $k=7$, the combined large-kernel depthwise branch costs about $176HWC$ MACs, still far cheaper than standard convolution when $C$ is large.
 
 ## Environment
 
@@ -120,7 +85,42 @@ python train_lk_rgb.py --config='config_lk/config_rgb_lk_dx.json'
 
 Outputs (model weights, metrics, predictions, TensorBoard logs) are saved under `./{experim_name}/{model}/{train_dataset}/`.
 
+## Analysis: Computational Complexity and Depthwise Convolution
 
+For an intermediate feature map with spatial size $H \times W$ and $C$ channels, let $N=HW$ denote the number of tokens, $K \times K$ the convolution kernel size, and $M \times M$ the Swin Transformer window size. Assuming $C_{\text{in}}=C_{\text{out}}=C$, the computational complexity in terms of MACs is summarized in Table 1.
+
+**Table 1. Computational complexity of different operations.**
+
+| Operation | MACs | Complexity |
+|---|---:|---:|
+| Standard convolution | $H W C^2 K^2$ | $O(HW C^2 K^2)$ |
+| Global self-attention | $4H W C^2 + 2(HW)^2 C$ | $O(HW C^2 + (HW)^2 C)$ |
+| Swin Transformer attention | $4H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
+| Swin Transformer full layer | $12H W C^2 + 2H W M^2 C$ | $O(HW C^2 + HW M^2 C)$ |
+| Depthwise convolution | $H W C K^2$ | $O(HW C K^2)$ |
+| Depthwise separable convolution | $H W C K^2 + H W C^2$ | $O(HW C(K^2+C))$ |
+| Depthwise $K\times K$ + our channel-wise $k\times 1$ conv (out=1) | $H W C K^2 + H W Ck$ | $O(H W C(K^2+k))$ |
+
+With settings $K=3$, $K=13$ and $M=7$, the comparison becomes Table 2.
+
+**Table 2. MACs under common settings.**
+
+| Operation | MACs |
+|---|---:|
+| Standard convolution $3\times3$ | $9 H W C^2$ |
+| Global self-attention | $4H W C^2 + 2H^2W^2 C$ |
+| Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
+| Depthwise convolution $3\times3$ | $9 H W C$ |
+| Depthwise convolution $13\times13$ | $169 H W C$ |
+| Depthwise $13\times13$ + our channel-wise $7\times1$ conv (out=1) | $176 H W C$ |
+
+This comparison provides the main motivation for the lightweight design of SCSRNet:
+
+- **Standard convolution** couples spatial and channel mixing, and its cost grows quadratically with the channel number, i.e., $O(HW C^2 K^2)$. When $C$ is large, which is common in hyperspectral and multispectral image fusion, this term becomes a dominant computational bottleneck.
+- **Global self-attention** introduces token-wise interactions with an additional $O((HW)^2 C)$ term. For high-resolution remote sensing images, $N=HW$ is large, making global attention prohibitively expensive.
+- **Swin Transformer** restricts attention to local windows and reduces the attention cost to $O(HW M^2 C)$. However, its full layer still contains projection and MLP costs of $O(HW C^2)$, and the window partitioning, shifting, and masking operations add extra implementation overhead.
+- **Depthwise convolution** performs spatial filtering independently for each channel, requiring only $O(HW C K^2)$. For the same kernel size, it is approximately $C$ times cheaper than standard convolution. More importantly, its cost remains linear in the channel number $C$, allowing large kernels to be used for large receptive fields without the quadratic channel cost.
+- **Channel-wise $k\times 1$ convolution with one output channel** further aggregates the depthwise responses along the channel dimension. Its cost is only $O(kHWC)$, which also remains linear in $C$. For $K=13$ and $k=7$, the combined large-kernel depthwise branch costs about $176HWC$ MACs, still far cheaper than standard convolution when $C$ is large.
 
 ## Citation
 
