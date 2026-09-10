@@ -22,7 +22,7 @@ The network is built around three key designs:
   <img src="assets/arch.jpg" width="90%">
 </p>
 
-## Motivation: Computational Complexity and Depthwise Convolution
+## Analysis: Computational Complexity and Depthwise Convolution
 
 For an intermediate feature map with spatial size $H \times W$ and $C$ channels, let $N=HW$ denote the number of tokens, $K \times K$ the convolution kernel size, and $M \times M$ the Swin Transformer window size. Assuming $C_{\text{in}}=C_{\text{out}}=C$, the computational complexity in terms of MACs is summarized in Table 1.
 
