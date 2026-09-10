@@ -44,6 +44,7 @@ With common settings $K=3$ and $M=7$, the comparison becomes:
 | Swin Transformer full layer, $M=7$ | $12H W C^2 + 98 H W C$ |
 | Depthwise convolution $3\times3$ | $9 H W C$ |
 | Depthwise convolution $13\times13$ | $169 H W C$ |
+| **DW $13\times13$ + channel-wise $k\times1$ conv (out=1)** | **$(K^2+k) H W C$** |
 
 ## Environment
 
